@@ -18,10 +18,15 @@ Filmy powinny być posortowane alfabetycznie */
 
 
 'use strict';
-const ads = document.querySelectorAll('.promo__adv img'),
+
+document.addEventListener('DOMContentLoaded', () => {
+    const ads = document.querySelectorAll('.promo__adv img'),
       poster = document.querySelector('.promo__bg'),
       genre = poster.querySelector('.promo__genre'),
-      movieList = document.querySelector('.promo__interactive-list');
+      movieList = document.querySelector('.promo__interactive-list'),
+      addForm = document.querySelector('form.add'),
+      input = document.querySelector('.adding__input'),
+      checkbox = document.querySelector('[type="checkbox"]');
       
 const movieDB = {
     movies: [
@@ -33,23 +38,65 @@ const movieDB = {
     ]
 };
 
+addForm.addEventListener('submit', event => {
+    event.preventDefault();
+    
+    let newFilm = input.value;
+    
+    
+    if(newFilm) {
+
+        if (checkbox.checked) {
+            console.log('Dodajemy ulubiony film');
+        }
+
+        if (newFilm.length > 18) {
+            newFilm = newFilm.slice(0, 19) + '...';
+        }
+
+        movieDB.movies.push(newFilm);
+        sortArr(movieDB.movies);
+
+        createMovieList(movieDB.movies, movieList);
+    }
+
+    event.target.reset();
+    })
+
 ads.forEach(item => {
     item.remove();
 });
 
 genre.textContent = "Драма"
-
 poster.style.background = "url('../img/bg.jpg') center center/cover no-repeat";
 
-movieList.innerHTML = '';
+function sortArr (arr) {
+    arr.sort();
+}
 
-movieDB.movies.sort();
+function createMovieList (list, parent) {
+    parent.innerHTML = '';
+    sortArr(movieDB.movies);
 
+    list.forEach((element, i) => {
+        parent.innerHTML += `
+        <li class="promo__interactive-item">
+            ${i+1} ${element}
+            <div class="delete"></div>
+        </li>`;
+    });
 
-movieDB.movies.forEach((element, i) => {
-    movieList.innerHTML += `
-    <li class="promo__interactive-item">
-        ${i+1} ${element}
-        <div class="delete"></div>
-    </li>`;
-}) 
+    document.querySelectorAll('.delete').forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+            btn.parentElement.remove();
+            list.splice(i, 1);
+
+            createMovieList(list, parent);
+        });
+    });
+    
+}
+
+    sortArr(movieDB.movies);
+    createMovieList(movieDB.movies, movieList);
+})
